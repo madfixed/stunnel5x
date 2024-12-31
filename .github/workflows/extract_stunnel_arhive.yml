@@ -1,0 +1,33 @@
+name: Extract stunnel Archive
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Extract stunnel-5.74.tar.gz
+        run: |
+          ARCHIVE="stunnel-5.74.tar.gz"
+          ROOT_DIR=$(tar -tf $ARCHIVE | head -1 | cut -f1 -d"/")
+          
+          # Check if the root directory in the archive contains the sources
+          tar -tf $ARCHIVE | grep -q "${ROOT_DIR}/src" && HAS_SRC=true || HAS_SRC=false
+
+          if [ "$HAS_SRC" = "true" ]; then
+            echo "The archive already contains the source directory, extracting only the contents of ${ROOT_DIR}."
+            tar -xzf $ARCHIVE --strip-components=1 -C .
+          else
+            echo "The archive does not contain the source directory, extracting as is."
+            tar -xzf $ARCHIVE -C .
+          fi
+          

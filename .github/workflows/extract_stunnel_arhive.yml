@@ -14,14 +14,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # Обеспечивает права на запись
 
-      - name: Extract stunnel-5.74.tar.gz
+      - name: Extract stunnel-5.74.tar.gz into the repository
         run: |
           ARCHIVE="stunnel-5.74.tar.gz"
 
           # Check if archive exists
           if [ ! -f "$ARCHIVE" ]; then
-            echo "Archive $ARCHIVE not found."
+            echo "Archive $ARCHIVE not found in the repository."
             exit 1
           fi
 
@@ -29,9 +31,22 @@ jobs:
 
           # Check if the root directory in the archive contains the sources
           if tar -tf $ARCHIVE | grep -q "${ROOT_DIR}/src"; then
-            echo "The archive already contains the source directory, extracting only the contents of ${ROOT_DIR}."
+            echo "The archive contains the source directory, extracting only the contents of ${ROOT_DIR}."
             tar -xzf $ARCHIVE --strip-components=1 -C .
           else
             echo "The archive does not contain the source directory, extracting as is."
             tar -xzf $ARCHIVE -C .
           fi
+
+          # List the extracted files for verification
+          echo "Extracted files:"
+          ls -la .
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+          git commit -m "Extracted stunnel-5.74.tar.gz"
+          git push

@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }} # Обеспечивает права на запись
+          token: ${{ secrets.TOKEN }} # Обеспечивает права на запись
 
       - name: Extract stunnel-5.74.tar.gz into the repository
         run: |
@@ -44,7 +44,7 @@ jobs:
 
       - name: Commit and push changes
         env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TOKEN: ${{ secrets.TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
